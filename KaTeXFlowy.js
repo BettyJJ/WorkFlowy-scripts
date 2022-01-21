@@ -8,6 +8,7 @@
 // @match        https://*.workflowy.com/*
 // @run-at       document-idle
 // @require      https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js
+// @require      https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js
 // ==/UserScript==
 
 (function () {
@@ -28,7 +29,7 @@
 				for (const node of addedNodes) {
 					if (!node.tagName) continue; // not an element
 
-					render_formula(node);
+					insert_iframe(node);
 
 				}
 			}
@@ -39,22 +40,18 @@
 
 
 	/**
-	 * render the node with formula
+	 * insert an iframe after the node with formula to contain the rendered result
 	 * @param node {Node} Dom Node
 	 */
-	function render_formula(node) {
-		// get the formula expression
-		const expr = get_expr(node);
-		// if no expression is found, do nothing
-		if (expr === '') {
+	function insert_iframe(node) {
+		if (!should_render(node)) {
 			return;
 		}
 
-		// render the formula
+		// insert an iframe to contain the rendered result
 		const result = document.createElement('iframe');
 		const head = '<head><link type="text/css" rel="Stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" /></head>';
-		const formula = katex.renderToString(expr);
-		result.srcdoc = head + '<body>' + formula + '</body>';
+		result.srcdoc = head + '<body>' + node.textContent + '</body>';
 
 		result.style.display = 'block';
 		result.style.width = '100%';
@@ -62,7 +59,7 @@
 
 		node.insertAdjacentElement('afterend', result);
 
-		// resize the iframe according to its content when loaded
+		// do stuff when the iframe is actually loaded
 		result.onload = function () {
 			iframe_onload(result);
 		}
@@ -70,36 +67,44 @@
 
 
 	/**
-	 * get the formula expression that should be rendered
-	 * only one expression is allowed in one node
+	 * check if the node contains anything that should be rendered
 	 * @param node {Node} Dom Node
-	 * @returns string. If the returned string is empty, then nothing needs to be rendered.
+	 * @returns boolean
 	 */
-	function get_expr(node) {
+	function should_render(node) {
 		if (!node.classList.contains('innerContentContainer')) {
-			return '';
+			return false;
 		}
 
-		// use $$ as delimiters
-		const text = node.innerText;
-		const regex = /\$\$(.+?)\$\$/s;
+		// use $ or $$ as delimiters
+		const text = node.textContent;
+		const regex = /\$(\$)?(.+?)\$(\$)?/s;
 		const match = text.match(regex);
 		if (match !== null) {
-			const expr = match[1];
-			return expr;
+			return true;
 		}
 
-		return '';
+		return false;
 	}
 
 
 	/**
-	 * resize the iframe according to its content when loaded
+	 * do stuff when the iframe is actually loaded
 	 * @param iframe {Element} <iframe> HTML element
 	 */
 	function iframe_onload(iframe) {
+		// render the iframe
+		const options = {
+			delimiters: [
+				{ left: '$$', right: '$$', display: true },
+				{ left: '$', right: '$', display: false }
+			]
+		};
+		renderMathInElement(iframe.contentDocument.body, options);
+
+		// resize the iframe according to its content
 		// need this extra height, otherwise there will be a scrollbar
-		const extra = 20;
+		const extra = 33;
 
 		iframe.style.height = iframe.contentDocument.body.scrollHeight + extra + 'px';
 	}
