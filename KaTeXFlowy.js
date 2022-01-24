@@ -57,7 +57,7 @@
 		const result = document.createElement('iframe');
 		let html = '<!DOCTYPE html><html>';
 		html += '<head><link type="text/css" rel="Stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" /></head>';
-		html += '<body>' + node.textContent + '</body></html>';
+		html += '<body style="margin:0">' + node.textContent + '</body></html>';
 		result.srcdoc = html;
 
 		result.style.display = 'block';
@@ -112,9 +112,13 @@
 		renderMathInElement(body, options);
 
 		// resize the iframe according to its content
-		// need this extra height, otherwise there will be a scrollbar
-		const extra = 30;
-		iframe.style.height = body.scrollHeight + extra + 'px';
+		// setting the parent style avoids collapsing margins (child margin doesn't affect parent height). otherwise there will be a scrollbar
+		const display_span_list = body.getElementsByClassName('katex-display');
+		for (let item of display_span_list) {
+			item.parentNode.style.display = 'block';;
+			item.parentNode.style.overflow = 'hidden';;
+		}
+		iframe.style.height = body.scrollHeight + 'px';
 
 		// when the iframe is clicked, make the corresponding raw content with LaTeX has focus and become displayed
 		body.addEventListener('click', () => {
