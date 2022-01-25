@@ -56,8 +56,12 @@
 		// insert an iframe to contain the rendered result
 		const result = document.createElement('iframe');
 		let html = '<!DOCTYPE html><html>';
-		html += '<head><link type="text/css" rel="Stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" /></head>';
-		html += '<body style="margin:0">' + node.textContent + '</body></html>';
+		html += '<head>';
+		html += '<link type="text/css" rel="Stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" />';
+		// setting the style, otherwise there will be a scrollbar
+		html += '<style type="text/css">body{margin:0; overflow:hidden} body>span{border:solid 1px white}</style>';
+		html += '</head>';
+		html += '<body>' + node.textContent + '</body></html>';
 		result.srcdoc = html;
 
 		result.style.display = 'block';
@@ -112,12 +116,6 @@
 		renderMathInElement(body, options);
 
 		// resize the iframe according to its content
-		// setting the parent style avoids collapsing margins (child margin doesn't affect parent height). otherwise there will be a scrollbar
-		const display_span_list = body.getElementsByClassName('katex-display');
-		for (let item of display_span_list) {
-			item.parentNode.style.display = 'block';;
-			item.parentNode.style.overflow = 'hidden';;
-		}
 		iframe.style.height = body.scrollHeight + 'px';
 
 		// when the iframe is clicked, make the corresponding raw content with LaTeX has focus and become displayed
