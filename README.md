@@ -9,3 +9,5 @@ Use `$...$` for inline mode and `$$...$$` for display mode. For example: `$$a^2 
 You can use formula in both the bullet and the note section.
 
 Because WorkFlowy does not support line breaks in bullets, if you need multiline formula, you can do it in the note section.
+
+If you find this script useful, consider [buy me a coffee ☕](https://www.buymeacoffee.com/bettyjj).
