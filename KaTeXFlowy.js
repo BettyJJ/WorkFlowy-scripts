@@ -124,11 +124,11 @@
 	 * hide the raw content with LaTeX. only shows it when it has focus
 	 */
 	function hide_raw() {
-		GM.addStyle('.has-latex .innerContentContainer { display:none } ');
-		GM.addStyle('.has-latex.content { height: 0; min-height: 0 } ');
+		GM.addStyle('.name .has-latex .innerContentContainer { display:none } ');
+		GM.addStyle('.name .has-latex.content { height: 0; min-height: 0 } ');
 
-		GM.addStyle('.name--focused .innerContentContainer { display:inline} ');
-		GM.addStyle('.name--focused .content { height: auto} ');
+		GM.addStyle('.name--focused .has-latex .innerContentContainer { display:inline} ');
+		GM.addStyle('.name--focused .has-latex.content { height: auto} ');
 
 		// add a background to make the raw part look clearer
 		GM.addStyle('.name--focused .has-latex { background: #eee } ');
