@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.1
+// @version      0.2
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
 // @match        https://*.workflowy.com/*
 // @run-at       document-idle
 // @grant        GM.addStyle
+// @grant        GM_getResourceText
+// @resource     KATEX_CSS https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css
 // @require      https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js
 // @require      https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js
 // ==/UserScript==
@@ -16,8 +18,20 @@
 	'use strict';
 
 
-	watch_page();
-	hide_raw();
+	init();
+
+
+	/**
+	 * initialize
+	 */
+	function init() {
+		watch_page();
+
+		load_css();
+
+		hide_raw();
+
+	}
 
 
 	/**
@@ -31,7 +45,9 @@
 				for (const node of addedNodes) {
 					if (!node.tagName) continue; // not an element
 
-					insert_iframe(node);
+					if (node.classList.contains('innerContentContainer')) {
+						handle_node(node);
+					}
 
 				}
 			}
@@ -42,38 +58,47 @@
 
 
 	/**
-	 * insert an iframe after the node with formula to contain the rendered result
+	 * insert a container after the node with formula to contain the rendered result
 	 * @param node {Node} Dom Node
 	 */
-	function insert_iframe(node) {
+	function handle_node(node) {
+		// if a container already exists, remove it first to avoid duplication
+		const parent = node.parentElement;
+		let container = parent.nextSibling;
+		if (container && container.className === 'rendered-latex') {
+			container.remove();
+		}
+		// also remove the class name we added previously
+		parent.classList.remove('has-latex');
+
+		// check if the node contains anything that should be rendered
 		if (!should_render(node)) {
 			return;
 		}
 
-		// give the node a class name so we can handle it later
-		node.classList.add('has-latex');
+		// give the parent a class name so we can handle it later
+		parent.classList.add('has-latex');
 
-		// insert an iframe to contain the rendered result
-		const result = document.createElement('iframe');
-		let html = '<!DOCTYPE html><html>';
-		html += '<head>';
-		html += '<link type="text/css" rel="Stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" />';
-		// setting the style, otherwise there will be a scrollbar
-		html += '<style type="text/css">body{margin:0; overflow:hidden} body>span{border:solid 1px white}</style>';
-		html += '</head>';
-		html += '<body>' + node.textContent + '</body></html>';
-		result.srcdoc = html;
+		// add an element to contain the rendered latex
+		container = document.createElement('div');
+		container.textContent = node.textContent;
+		container.className = 'rendered-latex';
+		parent.insertAdjacentElement('afterend', container);
 
-		result.style.display = 'block';
-		result.style.width = '100%';
-		// result.style.backgroundColor = '#eee';
+		// render it
+		const options = {
+			delimiters: [
+				{ left: '$$', right: '$$', display: true },
+				{ left: '$', right: '$', display: false }
+			]
+		};
+		renderMathInElement(container, options);
 
-		node.insertAdjacentElement('afterend', result);
+		// when the element is clicked, make the focus in the corresponding node so that the user can begin typing
+		container.addEventListener('click', () => {
+			parent.focus();
+		});
 
-		// do stuff when the iframe is actually loaded
-		result.onload = function () {
-			iframe_onload(result);
-		}
 	}
 
 
@@ -83,10 +108,6 @@
 	 * @returns {boolean}
 	 */
 	function should_render(node) {
-		if (!node.classList.contains('innerContentContainer')) {
-			return false;
-		}
-
 		// use $ or $$ as delimiters
 		const text = node.textContent;
 		const regex = /\$(\$)?(.+?)\$(\$)?/s;
@@ -100,55 +121,34 @@
 
 
 	/**
-	 * do stuff when the iframe is actually loaded
-	 * @param iframe {Element} <iframe> HTML element
-	 */
-	function iframe_onload(iframe) {
-		const body = iframe.contentDocument.body;
-
-		// render the iframe
-		const options = {
-			delimiters: [
-				{ left: '$$', right: '$$', display: true },
-				{ left: '$', right: '$', display: false }
-			]
-		};
-		renderMathInElement(body, options);
-
-		// resize the iframe according to its content
-		iframe.style.height = body.scrollHeight + 'px';
-
-		// when the iframe is clicked, make the corresponding raw content with LaTeX has focus and become displayed
-		body.addEventListener('click', () => {
-			remove_old_focus();
-			iframe.previousSibling.classList.add('latax-focused');
-		});
-
-	}
-
-
-	/**
 	 * hide the raw content with LaTeX. only shows it when it has focus
 	 */
 	function hide_raw() {
-		GM.addStyle('.name .has-latex {display:none}');
-		GM.addStyle('.name--focused .innerContentContainer, .name .latax-focused {display:inline} ');
+		GM.addStyle('.has-latex .innerContentContainer { display:none } ');
+		GM.addStyle('.has-latex.content { height: 0; min-height: 0 } ');
 
-		// when clicked, remove the class name previously added so only the newly clicked item has focus
-		document.addEventListener('click', () => {
-			remove_old_focus();
-		});
+		GM.addStyle('.name--focused .innerContentContainer { display:inline} ');
+		GM.addStyle('.name--focused .content { height: auto} ');
+
+		// add a background to make the raw part look clearer
+		GM.addStyle('.name--focused .has-latex { background: #eee } ');
+
 	}
 
 
 	/**
-	 * remove the class name added on the previous focused item(s)
+	 * load KaTex css
 	 */
-	function remove_old_focus() {
-		const old_focus = document.getElementsByClassName('latax-focused');
-		while (old_focus.length > 0) {
-			old_focus[0].classList.remove('latax-focused');
-		}
+	function load_css() {
+		let css = GM_getResourceText("KATEX_CSS");
+
+		// the font path in the css file is relative, we need to change it to absolute
+		css = css.replace(
+			/fonts\//g,
+			'https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/fonts/'
+		);
+
+		GM.addStyle(css);
 	}
 
 
