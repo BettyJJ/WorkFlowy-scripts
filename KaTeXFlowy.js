@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2
+// @version      0.2.1
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -62,14 +62,19 @@
 	 * @param node {Node} Dom Node
 	 */
 	function handle_node(node) {
-		// if a container already exists, remove it first to avoid duplication
+		// sometimes there is a dummy node without parent. don't know why, but we need to check and exclude it first
 		const parent = node.parentElement;
-		let container = parent.nextSibling;
-		if (container && container.className === 'rendered-latex') {
-			container.remove();
+		if (!parent) {
+			return;
 		}
-		// also remove the class name we added previously
-		parent.classList.remove('has-latex');
+
+		// if a container already exists, remove it first to avoid duplication
+		if (parent.nextSibling && parent.nextSibling.className === 'rendered-latex') {
+			parent.nextSibling.remove();
+
+			// also remove the class name we added previously
+			parent.classList.remove('has-latex');
+		}
 
 		// check if the node contains anything that should be rendered
 		if (!should_render(node)) {
@@ -80,8 +85,8 @@
 		parent.classList.add('has-latex');
 
 		// add an element to contain the rendered latex
-		container = document.createElement('div');
-		container.textContent = node.textContent;
+		const container = document.createElement('div');
+		container.innerHTML = node.innerHTML;
 		container.className = 'rendered-latex';
 		parent.insertAdjacentElement('afterend', container);
 
