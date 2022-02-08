@@ -69,7 +69,7 @@
 		}
 
 		// if a container already exists, remove it first to avoid duplication
-		if (parent.nextSibling && parent.nextSibling.className === 'rendered-latex') {
+		if (parent.nextSibling && parent.nextSibling.classList.contains('rendered-latex')) {
 			parent.nextSibling.remove();
 
 			// also remove the class name we added previously
@@ -89,6 +89,9 @@
 		container.innerHTML = node.innerHTML;
 		container.className = 'rendered-latex';
 		parent.insertAdjacentElement('afterend', container);
+
+		// replicate this class name of the parent so that the rendered block can preserve WF's original style
+		container.classList.add(parent.classList[1]);
 
 		// render it
 		const options = {
