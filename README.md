@@ -16,7 +16,7 @@ Because WorkFlowy does not support line breaks in bullets, if you need multiline
 ## KaTeXFlowy-with-AsciiMath
 `KaTeXFlowy-with-AsciiMath.js` is similar with the above script but supports both LaTeX and [AsciiMath](http://asciimath.org/) with the help of [asciimath2tex](https://github.com/christianp/asciimath2tex).
 
-AsciiMath uses `` ` `` (backtick) as the delimiter, eg. `` ` ``a^2 + b^2 = c^2 `` ` ``
+AsciiMath uses `` ` `` (backtick) as the delimiter, eg. `` `a^2 + b^2 = c^2` ``
 
 Don't use the two scripts together.
 
