@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.1
+// @version      0.2.2
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -59,7 +59,7 @@
 
 	/**
 	 * insert a container after the node with formula to contain the rendered result
-	 * @param node {Node} Dom Node
+	 * @param {Node} node Dom Node
 	 */
 	function handle_node(node) {
 		// sometimes there is a dummy node without parent. don't know why, but we need to check and exclude it first
@@ -112,7 +112,7 @@
 
 	/**
 	 * check if the node contains anything that should be rendered
-	 * @param node {Node} Dom Node
+	 * @param {Node} node Dom Node
 	 * @returns {boolean}
 	 */
 	function should_render(node) {
@@ -145,7 +145,7 @@
 
 
 	/**
-	 * load KaTex css
+	 * load KaTeX css
 	 */
 	function load_css() {
 		let css = GM_getResourceText("KATEX_CSS");
