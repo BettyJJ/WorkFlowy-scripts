@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.2
+// @version      0.2.3
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -141,6 +141,8 @@
 		// add a background to make the raw part look clearer
 		GM.addStyle('.name--focused .has-latex { background: #eee } ');
 
+		// preserve line breaks in notes
+		GM.addStyle('.notes .rendered-latex { white-space: pre-wrap } ');
 	}
 
 
