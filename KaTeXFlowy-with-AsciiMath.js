@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy-with-AsciiMath
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.3+am
+// @version      0.2.4+am
 // @description  Supports formula rendering in WorkFlowy with KaTeX. Also supports AsciiMath.
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -69,13 +69,8 @@
 			return;
 		}
 
-		// if a container already exists, remove it first to avoid duplication
-		if (parent.nextSibling && parent.nextSibling.classList.contains('rendered-latex')) {
-			parent.nextSibling.remove();
-
-			// also remove the class name we added previously
-			parent.classList.remove('has-latex');
-		}
+		// remove the class and container we previously added to avoid duplication
+		remove_old(node);
 
 		// check if the node contains anything that should be rendered
 		if (!has_latex(node) && !has_asciimath(node)) {
@@ -196,6 +191,34 @@
 		);
 
 		GM.addStyle(css);
+	}
+
+
+	/**
+	 * remove the class and container we previously added to avoid duplication
+	 * @param {Node} node Dom Node
+	 */
+	function remove_old(node) {
+		const parent = node.parentElement;
+
+		// if a container already exists, remove it first to avoid duplication
+		if (parent.nextSibling && parent.nextSibling.classList.contains('rendered-latex')) {
+			parent.nextSibling.remove();
+
+			// also remove the class name we added previously
+			parent.classList.remove('has-latex');
+		}
+
+		// if a node becomes empty, remove the container and class name
+		const empty = document.querySelectorAll('.has-latex:empty');
+		for (let i = 0; i < empty.length; i++) {
+			const element = empty[i];
+			if (element.nextSibling && element.nextSibling.classList.contains('rendered-latex')) {
+				element.nextSibling.remove();
+				element.classList.remove('has-latex');
+			}
+		}
+
 	}
 
 
