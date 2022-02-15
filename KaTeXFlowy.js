@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.4
+// @version      0.2.5
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -45,8 +45,14 @@
 				for (const node of addedNodes) {
 					if (!node.tagName) continue; // not an element
 
+					// watch ordinary node
 					if (node.classList.contains('innerContentContainer')) {
 						handle_node(node);
+					}
+
+					// watch the title when it becomes empty
+					if (node.classList.contains('contentEditablePlaceholder')) {
+						handle_untitled(node);
 					}
 
 				}
@@ -172,15 +178,31 @@
 		}
 
 		// if a node becomes empty, remove the container and class name
+		remove_empty();
+	}
+
+
+	/**
+	 * if the node is the title of the page, it needs something special handling
+	 */
+	function handle_untitled() {
+		// when the title becomes empty, remove the rendered container
+		remove_empty();
+	}
+
+
+	/**
+	 * remove all the containers and class names associated with empty nodes
+	 */
+	function remove_empty() {
 		const empty = document.querySelectorAll('.has-latex:empty');
-		for (let i = 0; i < empty.length; i++) {
+		for (let i = empty.length - 1; i >= 0; i--) {
 			const element = empty[i];
 			if (element.nextSibling && element.nextSibling.classList.contains('rendered-latex')) {
 				element.nextSibling.remove();
 				element.classList.remove('has-latex');
 			}
 		}
-
 	}
 
 
