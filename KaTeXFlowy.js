@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.5
+// @version      0.3.0
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -30,6 +30,9 @@
 		load_css();
 
 		hide_raw();
+
+		// WF's default is to show the first line of a note when it's not in focus. This function hides the note completely if it contains formula and is not in focus. Comment out this line if you don't like this behavior
+		hide_note_raw();
 
 	}
 
@@ -144,6 +147,40 @@
 
 		// preserve line breaks in notes
 		GM.addStyle('.notes .rendered-latex { white-space: pre-wrap } ');
+	}
+
+
+	/**
+	 * WF's default is to show the first line of a note when it's not in focus. This function hides the note completely if it contains formula and is not in focus
+	 */
+	function hide_note_raw() {
+		const css = `
+			/* WF keeps overriding our class name, so we have to select the element in this roundabout way */
+			/* add a background to the raw note in focus */
+			.notes .active:not(div + .notes .rendered-latex) {
+				background: #eee
+			}
+			.notes > div.content.active:only-child {
+				background: transparent
+			}
+
+			/* hide the raw note not in focus */
+			.notes .content:not(.active):not(div + .notes .rendered-latex) {
+				height: 0;
+				min-height: 0;
+			}
+			div.noted.project > div.notes > div.content:only-child {
+				height: revert;
+				min-height: revert;
+			}
+
+			/* make the rendered part gray */
+			.notes .rendered-latex {
+				color: #868c90;
+			}
+			`
+
+		GM.addStyle(css);
 	}
 
 
