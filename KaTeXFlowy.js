@@ -168,6 +168,7 @@
 			.notes .content:not(.active):not(div + .notes .rendered-latex) {
 				height: 0;
 				min-height: 0;
+				overflow: hidden;
 			}
 			div.noted.project > div.notes > div.content:only-child {
 				height: revert;
