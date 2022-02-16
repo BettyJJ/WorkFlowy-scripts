@@ -27,6 +27,19 @@ Enable ordered lists for WorkFlowy.
 
 Add the tag `#ol` to a bullet to get an ordered list. Each tag only affects its direct children.
 
+By default, the bullets in ordered lists are hidden. If you want to show them by default, uncomment this line in the script (about line 28):
+```
+// show_bullet_in_ol();
+```
+and change it into:
+```
+show_bullet_in_ol();
+```
+
+You can also add the tag `#nb` to hide child bullets.
+
+The two tags can be used together or independently.
+
 Install [Ordered-Lists-for-WorkFlowy.js](https://greasyfork.org/en/scripts/440015-ordered-lists-for-workflowy)
 
 If you find any of the scripts useful, consider [buying me a coffee ☕](https://www.buymeacoffee.com/bettyjj).
