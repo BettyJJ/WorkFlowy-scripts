@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ordered-Lists-for-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2
+// @version      0.2.1
 // @description  Enable ordered lists for WorkFlowy
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -114,7 +114,10 @@
 		// hide the bullets
 		let css = `
 		.list-ol > .children > .project > .name > .bullet {
-			opacity: 0.5 !important;
+			opacity: 0;
+		}
+		.list-ol > .children > .project > .name > .bullet:hover {
+			opacity: 0.5;
 		}
 		.list-ol > .children > .project > .name > .bullet > svg {
 			fill: transparent;
@@ -146,10 +149,10 @@
 		// hide the bullets
 		const css = `
 			.list-nb > .children > .project > .name > a.bullet {
-				opacity: 0.5 !important;
+				opacity: 0;
 			}
-			.list-nb > .children > .project > .name > a.bullet > svg {
-				fill: transparent;
+			.list-nb > .children > .project > .name > a.bullet:hover {
+				opacity: 0.5;
 			}
 			`
 
@@ -166,12 +169,15 @@
 		.list-ol > .children > .project > .name > .bullet {
 			opacity: revert;
 		}
+		.list-ol > .children > .project > .name > .bullet:hover {
+			opacity: revert;
+		}
 		.list-ol > .children > .project > .name > .bullet > svg {
 			fill: revert;
 		}
 		`
 
-		// locate the numbers
+		// position the numbers
 		css += `
 		.list-ol > .children > .project > .name:before {
 			margin-left: -3px;
