@@ -2,7 +2,7 @@
 // @name         Ordered-Lists-for-WorkFlowy
 // @namespace    https://github.com/BettyJJ
 // @version      0.3.1
-// @description  Enable ordered lists for WorkFlowy
+// @description  Enable ordered lists for WorkFlowy. Can also hide child bullets.
 // @author       Betty
 // @match        https://workflowy.com/*
 // @match        https://*.workflowy.com/*
