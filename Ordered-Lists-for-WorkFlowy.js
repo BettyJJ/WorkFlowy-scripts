@@ -104,6 +104,17 @@
 	function add_style() {
 		add_style_ol();
 		add_style_nb();
+
+		// hide the tags (#ol, #nb) when they are not in focus
+		const css = `
+		.contentTag[data-val="#ol"]:not(.name--focused *):not(:hover),
+		.contentTag[data-val="#nb"]:not(.name--focused *):not(:hover) {
+			opacity: 0;
+		}
+		`
+
+		GM.addStyle(css);
+
 	}
 
 
