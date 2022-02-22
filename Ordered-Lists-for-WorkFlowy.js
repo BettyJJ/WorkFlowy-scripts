@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ordered-Lists-for-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.1
+// @version      0.3.1
 // @description  Enable ordered lists for WorkFlowy
 // @author       Betty
 // @match        https://workflowy.com/*
