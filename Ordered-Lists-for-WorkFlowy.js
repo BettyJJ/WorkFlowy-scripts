@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ordered-Lists-for-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.3.1
+// @version      0.3.2
 // @description  Enable ordered lists for WorkFlowy. Can also hide child bullets.
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -105,10 +105,10 @@
 		add_style_ol();
 		add_style_nb();
 
-		// hide the tags (#ol, #nb) when they are not in focus
+		// hide the tags (#ol, #nb) when the node are not in focus or hovered
 		const css = `
-		.contentTag[data-val="#ol"]:not(.name--focused *):not(:hover),
-		.contentTag[data-val="#nb"]:not(.name--focused *):not(:hover) {
+		.contentTag[data-val="#ol"]:not(.name--focused *):not(.name:hover *),
+		.contentTag[data-val="#nb"]:not(.name--focused *):not(.name:hover *) {
 			opacity: 0;
 		}
 		`

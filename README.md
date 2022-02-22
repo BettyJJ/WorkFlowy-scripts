@@ -23,7 +23,7 @@ AsciiMath uses `` ` `` (backtick) as the delimiter, eg. `` `a^2 + b^2 = c^2` ``
 [Install KaTeXFlowy-with-AsciiMath.js](https://greasyfork.org/en/scripts/439948-katexflowy-with-asciimath)
 
 ## Ordered-Lists-for-WorkFlowy
-Enable ordered lists for WorkFlowy.
+Enable ordered lists for WorkFlowy. Can also hide child bullets.
 
 Add the tag `#ol` to a bullet to get an ordered list. Each tag only affects its direct children.
 
