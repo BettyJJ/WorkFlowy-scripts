@@ -1,6 +1,18 @@
 # WorkFlowy-scripts
 A collection of scripts I wrote to enhance the features of [WorkFlowy](https://workflowy.com/).
 
+If you find any of the scripts useful, consider [buying me a coffee ☕](https://www.buymeacoffee.com/bettyjj).
+
+## Markdown-WorkFlowy
+
+Supports Markdown rendering in WorkFlowy.
+
+[Install Markdown-WorkFlowy.js here](https://greasyfork.org/en/scripts/441459-markdown-workflowy)
+
+After installing the script and refreshing your WorkFlowy page, a "Preview MD" button will show up. Click the button to toggle on/off the preview.
+
+Don't use this script together with `KaTeXFlowy.js`, `KaTeXFlowy-with-AsciiMath.js`, or `Ordered-Lists-for-WorkFlowy.js`. Ordered lists are covered in this script. LaTeX is not supported (yet).
+
 ## KaTeXFlowy
 Supports formula rendering in WorkFlowy with [KaTeX](https://katex.org/).
 
@@ -41,5 +53,3 @@ You can also add the tag `#nb` to hide child bullets.
 The two tags can be used together or independently.
 
 Install [Ordered-Lists-for-WorkFlowy.js](https://greasyfork.org/en/scripts/440015-ordered-lists-for-workflowy)
-
-If you find any of the scripts useful, consider [buying me a coffee ☕](https://www.buymeacoffee.com/bettyjj).
