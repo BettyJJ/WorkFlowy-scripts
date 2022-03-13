@@ -7,12 +7,12 @@
 // @match        https://workflowy.com/*
 // @match        https://*.workflowy.com/*
 // @run-at       document-idle
-// @require      https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js
-// @require      https://uicdn.toast.com/editor-plugin-code-syntax-highlight/latest/toastui-editor-plugin-code-syntax-highlight-all.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.3.2/markdown-it.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js
 // @grant        GM.addStyle
 // @grant        GM_getResourceText
-// @resource     TUI_CSS https://uicdn.toast.com/editor/latest/toastui-editor.min.css
-// @resource     PRISM_CSS https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css
+// @resource     TUI_CSS https://cdn.jsdelivr.net/npm/@toast-ui/editor@3.1.3/dist/toastui-editor-viewer.min.css
+// @resource     HL_CSS https://unpkg.com/@highlightjs/cdn-assets@11.5.0/styles/github.min.css
 // ==/UserScript==
 
 (function () {
@@ -97,17 +97,15 @@
 		const raw = get_raw_content();
 
 		const preview = document.querySelector('.bmd-preview-box');
-		const editor = toastui.Editor;
-		const viewer = editor.factory({
-			el: preview,
-			initialValue: raw,
-			plugins: [[editor.plugin.codeSyntaxHighlight, { highlighter: Prism }]],
-			viewer: true,
-		});
 
-		// assign the viewer instance to the DOM element, so we can access it later
-		preview.viewer = viewer;
+		// use tui editor's style
+		const content = document.createElement('div');
+		content.className = 'toastui-editor-contents';
+		preview.appendChild(content);
 
+		const md = get_mdit();
+		const result = md.render(raw);
+		content.innerHTML = result;
 	}
 
 
@@ -132,6 +130,30 @@
 
 		return raw;
 	}
+
+	/**
+	 * return the object of markdown-it
+	 * @returns {object}
+	 */
+	function get_mdit() {
+		const md = window.markdownit({
+			breaks: true,
+			highlight: function (str, lang) {
+				if (lang && hljs.getLanguage(lang)) {
+					try {
+						return hljs.highlight(str, { language: lang }).value;
+					} catch (__) { }
+				}
+
+				return '';
+			},
+			html: true,
+			linkify: true,
+		});
+
+		return md;
+	}
+
 
 
 	/**
@@ -167,15 +189,16 @@
 			return;
 		}
 
-		const preview = document.querySelector('.bmd-preview-box');
-		if (!preview) {
+		const content = document.querySelector('.toastui-editor-contents');
+		if (!content) {
 			return;
 		}
 
 		// update the preview
-		const viewer = preview.viewer;
 		const raw = get_raw_content();
-		viewer.setMarkdown(raw, false);
+		const md = get_mdit();
+		const result = md.render(raw);
+		content.innerHTML = result;
 	}
 
 
@@ -186,8 +209,8 @@
 		const tui_css = GM_getResourceText('TUI_CSS');
 		GM.addStyle(tui_css);
 
-		const prism_css = GM_getResourceText('PRISM_CSS');
-		GM.addStyle(prism_css);
+		const hl_css = GM_getResourceText('HL_CSS');
+		GM.addStyle(hl_css);
 
 		// override WF's interfering styles
 		GM.addStyle(`
