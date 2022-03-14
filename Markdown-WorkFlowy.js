@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Markdown-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2.1
+// @version      0.3.0
 // @description  Supports Markdown in WorkFlowy
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -18,6 +18,10 @@
 (function () {
 	'use strict';
 
+	// render WorkFlowy native formatting, such as bold, colors, links and tags, even though they are not Markdown
+	// if you want pure Markdown, change the last word in the following line from "true" to "false"
+	const render_workflowy_formatting = true;
+
 
 	init();
 
@@ -33,7 +37,6 @@
 
 		load_css();
 
-		// hide_note_raw();
 	}
 
 
@@ -127,13 +130,15 @@
 			const parent = node.parentElement;
 			const style = parent.getAttribute('style');
 			if (style === null || style === '' || style.indexOf('visibility') !== -1) {
-				raw += node.textContent + '\n';
+				const text = get_node_text(node);
+				raw += text + '\n';
 			}
 
 		}
 
 		return raw;
 	}
+
 
 	/**
 	 * return the object of markdown-it
@@ -157,7 +162,6 @@
 
 		return md;
 	}
-
 
 
 	/**
@@ -207,7 +211,70 @@
 
 
 	/**
-	 * load TUI Editor css
+	 * get the text of a node
+	 * @param {Node} node Dom Node
+	 * @returns {string}
+	 */
+	function get_node_text(node) {
+		let text = '';
+
+		if (!render_workflowy_formatting) {
+			text = node.textContent;
+		}
+		// handle WF native formatting
+		else {
+			const div = document.createElement('div');
+			div.innerHTML = node.innerHTML;
+
+			while (div.firstChild) {
+				const child = div.firstChild;
+				// WF has autolinking. we need to remove the links to avoid double conversion
+				if (child.href && remove_trailing_slash(child.href) === remove_trailing_slash(child.textContent)) {
+					text += child.textContent;
+				}
+				// Markdown headings starting with ## is treated as tags in WF. we need to fix it
+				else if (child.classList && child.classList.contains('contentTag')) {
+					const tag = child.getAttribute('data-val');
+					const only_contains_sharp = new RegExp('^#+$').test(tag);
+					const is_line_start = (text === '') || (text[text.length - 1] === '\n');
+					if (only_contains_sharp && is_line_start) {
+						text += tag;
+					} else {
+						text += child.outerHTML;
+					}
+				}
+				// in other cases, use HTML if possible
+				else {
+					if (child.outerHTML) {
+						text += child.outerHTML;
+					} else {
+						text += child.textContent;
+					}
+				}
+				div.removeChild(child);
+			}
+
+			// WF converts < and >. we need them for MD to work
+			text = text.replaceAll('&lt;', '<');
+			text = text.replaceAll('&gt;', '>');
+		}
+
+		return text;
+	}
+
+
+	/**
+	 * remove the trailing slash in a url
+	 * @param {string} url
+	 * @returns {string}
+	 */
+	function remove_trailing_slash(url) {
+		return (url[url.length - 1] == "/") ? url.substr(0, url.length - 1) : url;
+	}
+
+
+	/**
+	 * load css
 	 */
 	function load_css() {
 		const tui_css = GM_getResourceText('TUI_CSS');
@@ -216,7 +283,7 @@
 		const hl_css = GM_getResourceText('HL_CSS');
 		GM.addStyle(hl_css);
 
-		// override WF's interfering styles
+		// style for preview content, mainly fixing interfering styles
 		GM.addStyle(`
 		.toastui-editor-contents th, .toastui-editor-contents tr, .toastui-editor-contents td {
 			vertical-align: middle;
@@ -238,6 +305,14 @@
 		}
 		.toastui-editor-contents pre code {
 			color: #2a3135;
+		}
+
+		.bmd-preview-box .contentTag {
+			color: #868c90;
+			cursor: pointer;
+		}
+		.bmd-preview-box .contentTag .contentTagText {
+			text-decoration: underline;
 		}
 
 		`);
@@ -283,6 +358,7 @@
 			padding: 24px;
 			user-select: text;
 		}
+
 		`);
 
 	}
