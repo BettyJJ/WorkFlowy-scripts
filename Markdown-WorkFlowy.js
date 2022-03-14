@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Markdown-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.2
+// @version      0.2.1
 // @description  Supports Markdown in WorkFlowy
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -125,7 +125,8 @@
 
 			// sometimes there is repetition. don't know why, but we need to check and exclude it first
 			const parent = node.parentElement;
-			if (parent.getAttribute('style') === null || parent.getAttribute('style').indexOf('visibility') !== -1) {
+			const style = parent.getAttribute('style');
+			if (style === null || style === '' || style.indexOf('visibility') !== -1) {
 				raw += node.textContent + '\n';
 			}
 
