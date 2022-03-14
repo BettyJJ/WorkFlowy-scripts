@@ -99,9 +99,12 @@
 		const preview = document.querySelector('.bmd-preview-box');
 
 		// use tui editor's style
-		const content = document.createElement('div');
-		content.className = 'toastui-editor-contents';
-		preview.appendChild(content);
+		let content = document.querySelector('.toastui-editor-contents');
+		if (content === null) {
+			content = document.createElement('div');
+			content.className = 'toastui-editor-contents';
+			preview.appendChild(content);
+		}
 
 		const md = get_mdit();
 		const result = md.render(raw);
