@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Markdown-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.1
+// @version      0.2
 // @description  Supports Markdown in WorkFlowy
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -220,6 +220,22 @@
 		.toastui-editor-contents {
 			font-size: 15px;
 		}
+
+		/* support dark mode */
+		.toastui-editor-contents h1, .toastui-editor-contents h2, .toastui-editor-contents h3, .toastui-editor-contents h4, .toastui-editor-contents h5, .toastui-editor-contents h6
+		, .toastui-editor-contents p
+		, .toastui-editor-contents dir, .toastui-editor-contents menu, .toastui-editor-contents ol, .toastui-editor-contents ul
+		, .toastui-editor-contents table
+		{
+			color: revert;
+		}
+		.toastui-editor-contents table td, .toastui-editor-contents table th {
+			border: 1px solid #dadada;
+		}
+		.toastui-editor-contents pre code {
+			color: #2a3135;
+		}
+
 		`);
 
 		// style for the preview box
@@ -227,6 +243,7 @@
 		.bmd-preview-button {
 			background: white;
 			border: solid 1px;
+			color: #2a3135;
 			padding: 6px;
 			position: absolute;
 			right: 24px;
@@ -260,6 +277,7 @@
 			flex-grow: 1;
 			margin-top: 72px;
 			padding: 24px;
+			user-select: text;
 		}
 		`);
 
