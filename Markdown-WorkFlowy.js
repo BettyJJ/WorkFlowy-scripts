@@ -181,8 +181,18 @@
 
 				}
 			}
+			// to monitor notes getting in and out of focus, we need to watch for attribute changes
+			for (const { type, target } of mutationlist) {
+				if (type === 'attributes' && target.classList.contains('content')) {
+					update_preview();
+				}
+			}
 		});
-		observer.observe(document.body, { childList: true, subtree: true });
+
+		observer.observe(document.body, {
+			attributeFilter: ['class'],
+			childList: true, subtree: true
+		});
 
 	}
 
@@ -218,14 +228,24 @@
 	function get_node_text(node) {
 		let text = '';
 
+		// show the first line of a note by default and the whole note if it is in focus or the root, just like native WF
+		const is_note = node.parentElement.parentElement.classList.contains('notes');
+		const is_active = node.parentElement.classList.contains('active');
+		const is_root = node.parentElement.parentElement.parentElement.classList.contains('root');
+		const is_inactive_note = (is_note && !is_active && !is_root);
+
+		const div = document.createElement('div');
+		if (is_inactive_note) {
+			div.innerHTML = node.innerHTML.split('\n')[0];
+		} else {
+			div.innerHTML = node.innerHTML;
+		}
+
 		if (!render_workflowy_formatting) {
-			text = node.textContent;
+			text = div.textContent;
 		}
 		// handle WF native formatting
 		else {
-			const div = document.createElement('div');
-			div.innerHTML = node.innerHTML;
-
 			while (div.firstChild) {
 				const child = div.firstChild;
 				// WF has autolinking. we need to remove the links to avoid double conversion
@@ -236,7 +256,7 @@
 				else if (child.classList && child.classList.contains('contentTag')) {
 					const tag = child.getAttribute('data-val');
 					const only_contains_sharp = new RegExp('^#+$').test(tag);
-					const is_line_start = (text === '') || (text[text.length - 1] === '\n');
+					const is_line_start = ((text === '') || (text[text.length - 1] === '\n'));
 					if (only_contains_sharp && is_line_start) {
 						text += tag;
 					} else {
