@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Ordered-Lists-for-WorkFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.3.2
+// @version      0.4.0
 // @description  Enable ordered lists for WorkFlowy. Can also hide child bullets.
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -26,6 +26,9 @@
 
 		// we hide the bullets in ordered lists by default. If you want to show them by default, uncomment the next line
 		// show_bullet_in_ol();
+
+		// if a node contains nothing but . (a period), we hide this bullet. If you do not want this behaviour, comment the next line
+		add_style_nb_dot();
 	}
 
 
@@ -64,6 +67,7 @@
 
 		add_class_ol(node);
 		add_class_nb(node);
+		add_class_nb_dot(node);
 	}
 
 
@@ -97,6 +101,23 @@
 			ancestor.classList.add('list-nb');
 		}
 	}
+
+
+	/**
+	 * if a node contains nothing but . (a period), add a class
+	 * * @param {Node} node Dom Node
+	 */
+	function add_class_nb_dot(node) {
+		// first remove the class we added previously
+		const ancestor = node.closest('.project');
+		ancestor.classList.remove('list-nb-dot');
+
+		// if a node contains nothing but . (a period), add a class
+		if (node.textContent === '.') {
+			ancestor.classList.add('list-nb-dot');
+		}
+	}
+
 
 	/**
 	 * add style
@@ -166,6 +187,27 @@
 				opacity: 0.5;
 			}
 			`
+
+		GM.addStyle(css);
+	}
+
+
+	/**
+	 * add style if a node contains nothing but . (a period)
+	 */
+	function add_style_nb_dot() {
+		// hide the bullets
+		const css = `
+				.list-nb-dot > .name > a.bullet {
+					opacity: 0;
+				}
+				.list-nb-dot > .name > a.bullet:hover {
+					opacity: 0.5;
+				}
+				.list-nb-dot > .name > .content:not(.name--focused *):not(.name:hover *) {
+					opacity: 0;
+				}
+				`
 
 		GM.addStyle(css);
 	}
