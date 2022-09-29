@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KaTeXFlowy
 // @namespace    https://github.com/BettyJJ
-// @version      0.3.0
+// @version      0.3.1
 // @description  Supports formula rendering in WorkFlowy with KaTeX
 // @author       Betty
 // @match        https://workflowy.com/*
@@ -147,6 +147,10 @@
 
 		// preserve line breaks in notes
 		GM.addStyle('.notes .rendered-latex { white-space: pre-wrap } ');
+
+		// make the rendered div take up full row width
+		GM.addStyle('.name .rendered-latex { width: 100% } ');
+
 	}
 
 
